@@ -20,7 +20,7 @@ services:
       - "8080:8080"
 
   mcp_server:
-    image: docker.io/library/demo-mcp-server:1.0.0-SNAPSHOT
+    image: ghcr.io/nicholasm95/secure-mcp-server:1.0.0
     container_name: mcp_server
     labels:
       - "traefik.enable=true"

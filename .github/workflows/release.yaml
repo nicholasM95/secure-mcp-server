@@ -21,8 +21,18 @@ env:
   IMAGE_NAME: nicholasm95/secure-mcp-server
 
 jobs:
-  release:
-    runs-on: ubuntu-24.04
+  build:
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux/amd64
+            suffix: amd64
+          - runner: ubuntu-24.04-arm64
+            platform: linux/arm64
+            suffix: arm64
+
+    runs-on: ${{ matrix.runner }}
 
     permissions:
       contents: write
@@ -68,7 +78,7 @@ jobs:
         run: ./mvnw test
 
       - name: Create Docker image
-        run: ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag) -DskipTests -Pnative
+        run: ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }} -DskipTests -Pnative
 
       - name: Docker push
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }}
