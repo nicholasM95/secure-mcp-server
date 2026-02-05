@@ -66,7 +66,7 @@ jobs:
       - name: Install Docker (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install docker
+          brew install docker colima
           colima start          
 
       - name: Log in to the Container registry
@@ -97,7 +97,6 @@ jobs:
   release:
     needs: build
     runs-on: ubuntu-24.04
-    if: github.ref == 'refs/heads/main'
 
     permissions:
       contents: write
