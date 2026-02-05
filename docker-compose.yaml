@@ -20,7 +20,7 @@ services:
       - "8080:8080"
 
   mcp_server:
-    image: ghcr.io/nicholasm95/secure-mcp-server:1.0.0
+    image: ghcr.io/nicholasm95/secure-mcp-server:1.0.0-amd64
     container_name: mcp_server
     labels:
       - "traefik.enable=true"

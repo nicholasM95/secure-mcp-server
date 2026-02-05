@@ -28,7 +28,7 @@ jobs:
           - runner: ubuntu-24.04
             platform: linux/amd64
             suffix: amd64
-          - runner: ubuntu-24.04-arm64
+          - runner: macos-latest
             platform: linux/arm64
             suffix: arm64
 
@@ -82,3 +82,17 @@ jobs:
 
       - name: Docker push
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }}
+
+      - name: Create Release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update CHANGELOG.md
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add CHANGELOG.md
+          git commit -m "docs(CHANGELOG): Update CHANGELOG.md"
+          git push origin main
