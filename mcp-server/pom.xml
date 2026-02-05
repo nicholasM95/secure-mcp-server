@@ -79,12 +79,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <image>
-                        <builder>paketobuildpacks/builder-jammy-java-tiny:latest</builder>
-                        <pullPolicy>ALWAYS</pullPolicy>
-                    </image>
-                </configuration>
             </plugin>
         </plugins>
     </build>
