@@ -63,11 +63,14 @@ jobs:
         run: |
           npm install semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/github
 
-      - name: Install Docker (macOS)
+      - name: Setup Docker on macOS
         if: runner.os == 'macOS'
-        run: |
-          brew install docker colima
-          colima start          
+        id: setup-docker
+        uses: douglascamata/setup-docker-macos-action@v1.0.1
+        with:
+          lima: v1.2.1
+          colima: v0.9.1
+          colima-network-address: false
 
       - name: Log in to the Container registry
         uses: docker/login-action@3227f5311cb93ffd14d13e65d8cc400d30f4dd8a
