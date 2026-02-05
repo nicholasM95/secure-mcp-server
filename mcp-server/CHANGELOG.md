@@ -1,3 +1,5 @@
+## [1.0.1](https://github.com/nicholasM95/secure-mcp-server/compare/1.0.0...1.0.1) (2026-02-05)
+
 # 1.0.0 (2026-02-05)
 
 
