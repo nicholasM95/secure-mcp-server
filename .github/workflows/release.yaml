@@ -35,10 +35,11 @@ jobs:
     runs-on: ${{ matrix.runner }}
 
     permissions:
-      contents: write
-      issues: write
-      pull-requests: write
+      contents: read
       packages: write
+
+    outputs:
+      image_tag: ${{ steps.version.outputs.image_tag }}
 
     steps:
       - name: Checkout
@@ -60,6 +61,12 @@ jobs:
         run: |
           npm install semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/github
 
+      - name: Install Docker (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install docker
+          colima start          
+
       - name: Log in to the Container registry
         uses: docker/login-action@3227f5311cb93ffd14d13e65d8cc400d30f4dd8a
         with:
@@ -68,8 +75,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate next version
+        id: version
         run: |
           npx semantic-release --dry-run --no-ci
+          echo "image_tag=$(cat .image_tag)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SKIP_UPDATE_VERSION_IN_POM: true
@@ -83,16 +92,44 @@ jobs:
       - name: Docker push
         run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }}
 
+  release:
+    needs: build
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/main'
+
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+
+    defaults:
+      run:
+        working-directory: mcp-server
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v6.2.0
+        with:
+          node-version: 24
+
+      - name: Install Semantic Release and plugins
+        run: |
+          npm install semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/github
+
       - name: Create Release
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update CHANGELOG.md
-        if: github.ref == 'refs/heads/main'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add CHANGELOG.md
-          git commit -m "docs(CHANGELOG): Update CHANGELOG.md"
+          git commit -m "docs(CHANGELOG): Update CHANGELOG.md" || echo "No changes to commit"
           git push origin main
