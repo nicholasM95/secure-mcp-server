@@ -21,27 +21,14 @@ env:
   IMAGE_NAME: nicholasm95/secure-mcp-server
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        include:
-          - runner: ubuntu-24.04
-            platform: linux/amd64
-            suffix: amd64
-          - runner: macos-latest
-            platform: linux/arm64
-            suffix: arm64
-
-    runs-on: ${{ matrix.runner }}
+  release:
+    runs-on: ubuntu-24.04
 
     permissions:
       contents: write
       issues: write
       pull-requests: write
       packages: write
-
-    outputs:
-      image_tag: ${{ steps.version.outputs.image_tag }}
 
     steps:
       - name: Checkout
@@ -63,15 +50,6 @@ jobs:
         run: |
           npm install semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/github
 
-      - name: Setup Docker on macOS
-        if: runner.os == 'macOS'
-        id: setup-docker
-        uses: douglascamata/setup-docker-macos-action@v1.0.1
-        with:
-          lima: v1.2.1
-          colima: v0.9.1
-          colima-network-address: false
-
       - name: Log in to the Container registry
         uses: docker/login-action@3227f5311cb93ffd14d13e65d8cc400d30f4dd8a
         with:
@@ -80,10 +58,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate next version
-        id: version
         run: |
           npx semantic-release --dry-run --no-ci
-          echo "image_tag=$(cat .image_tag)" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SKIP_UPDATE_VERSION_IN_POM: true
@@ -92,38 +68,10 @@ jobs:
         run: ./mvnw test
 
       - name: Create Docker image
-        run: ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }} -DskipTests -Pnative
+        run: ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag) -DskipTests -Pnative
 
       - name: Docker push
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)-${{ matrix.suffix }}
-
-  release:
-    needs: build
-    runs-on: ubuntu-24.04
-
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
-
-    defaults:
-      run:
-        working-directory: mcp-server
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v6.2.0
-        with:
-          node-version: 24
-
-      - name: Install Semantic Release and plugins
-        run: |
-          npm install semantic-release @semantic-release/exec @semantic-release/changelog @semantic-release/github
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$(cat .image_tag)
 
       - name: Create Release
         run: npx semantic-release
@@ -135,5 +83,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add CHANGELOG.md
-          git commit -m "docs(CHANGELOG): Update CHANGELOG.md" || echo "No changes to commit"
+          git commit -m "docs(CHANGELOG): Update CHANGELOG.md"
           git push origin main
