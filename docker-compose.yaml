@@ -12,6 +12,8 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
 
+      KC_FEATURES: token-exchange,admin-fine-grained-authz:v1
+
       KC_HOSTNAME: 3022b8352db3.ngrok-free.app
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_ENABLED: "true"
@@ -27,7 +29,7 @@ services:
       - "traefik.http.routers.mcp.rule=PathPrefix(`/`)"
       - "traefik.http.services.mcp.loadbalancer.server.port=9000"
     environment:
-      ISSUER_URI: https://3022b8352db3.ngrok-free.app/keycloak/realms/demo-dcr
+      ISSUER_URI: https://3022b8352db3.ngrok-free.app/keycloak/realms/demo-mcp-servers
     ports:
       - "9000:9000"
     depends_on:

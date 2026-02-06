@@ -1,12 +1,12 @@
-resource "keycloak_realm" "realm_user" {
-  realm                = "demo-user"
+resource "keycloak_realm" "realm_users" {
+  realm                = "demo-users"
   enabled              = true
-  display_name         = "Demo USER"
+  display_name         = "Demo USERS"
   registration_allowed = false
 }
 
 resource "keycloak_user" "demo_user" {
-  realm_id = keycloak_realm.realm_user.id
+  realm_id = keycloak_realm.realm_users.id
   username = "testuser"
   enabled  = true
 
