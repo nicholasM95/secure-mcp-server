@@ -14,7 +14,7 @@ services:
 
       KC_FEATURES: token-exchange,admin-fine-grained-authz:v1
 
-      KC_HOSTNAME: 3022b8352db3.ngrok-free.app
+      KC_HOSTNAME: 04f7-81-240-46-212.ngrok-free.app
       KC_PROXY_HEADERS: xforwarded
       KC_HTTP_ENABLED: "true"
       KC_HTTP_RELATIVE_PATH: /keycloak
@@ -22,16 +22,33 @@ services:
       - "8080:8080"
 
   mcp_server:
-    image: ghcr.io/nicholasm95/secure-mcp-server:1.0.0
+    image: mcp-server:1.0.0
     container_name: mcp_server
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.mcp.rule=PathPrefix(`/`)"
       - "traefik.http.services.mcp.loadbalancer.server.port=9000"
     environment:
-      ISSUER_URI: https://3022b8352db3.ngrok-free.app/keycloak/realms/demo-mcp-servers
+      ISSUER_URI: https://04f7-81-240-46-212.ngrok-free.app/keycloak/realms/demo-mcp-servers
+      TEMPERATURE_API: https://04f7-81-240-46-212.ngrok-free.app/api
     ports:
       - "9000:9000"
+    depends_on:
+      - keycloak
+
+  temperature_api:
+    image: temperature-api:1.0.0
+    container_name: temperature_api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=PathPrefix(`/api`)"
+      - "traefik.http.middlewares.api-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.routers.api.middlewares=api-stripprefix"
+      - "traefik.http.services.api.loadbalancer.server.port=9999"
+    environment:
+      ISSUER_URI: https://04f7-81-240-46-212.ngrok-free.app/keycloak/realms/demo-users
+    ports:
+      - "9999:9999"
     depends_on:
       - keycloak
 

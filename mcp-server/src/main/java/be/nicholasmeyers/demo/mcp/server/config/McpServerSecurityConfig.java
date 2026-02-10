@@ -18,6 +18,7 @@ public class McpServerSecurityConfig {
     public SecurityFilterChain securityFilterChain(@Value("${issuer-uri}") String issuerUri, HttpSecurity http) {
         return http
                 .authorizeHttpRequests(authorize -> {
+                    authorize.requestMatchers("/.well-known/**").permitAll();
                     authorize.anyRequest().authenticated();
                 })
                 .cors(Customizer.withDefaults())
@@ -26,7 +27,7 @@ public class McpServerSecurityConfig {
                         McpServerOAuth2Configurer.mcpServerOAuth2(),
                         (mcpAuthorization) -> {
                             mcpAuthorization.authorizationServer(issuerUri);
-                            mcpAuthorization.validateAudienceClaim(true);
+                            mcpAuthorization.validateAudienceClaim(false);
                         }
                 )
                 .build();

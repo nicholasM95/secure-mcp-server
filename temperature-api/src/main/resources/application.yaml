@@ -1,0 +1,15 @@
+server:
+  port: 9999
+
+
+spring:
+  application:
+    name: demo-temperature-api
+  main:
+    banner-mode: off
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${ISSUER_URI:foo.bar}

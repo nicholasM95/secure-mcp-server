@@ -18,3 +18,4 @@ spring:
         protocol: STREAMABLE
 
 issuer-uri: ${ISSUER_URI}
+temperature.api: ${TEMPERATURE_API}
