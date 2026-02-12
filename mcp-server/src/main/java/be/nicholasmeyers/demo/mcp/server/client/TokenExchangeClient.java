@@ -2,7 +2,6 @@ package be.nicholasmeyers.demo.mcp.server.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jspecify.annotations.NonNull;
-import org.springframework.aot.hint.annotation.RegisterReflectionForBinding;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -44,7 +43,6 @@ public class TokenExchangeClient {
                 .body(TokenExchangeResponse.class);
     }
 
-    @RegisterReflectionForBinding(TokenExchangeResponse.class)
     public record TokenExchangeResponse(
             @JsonProperty("access_token") String accessToken,
             @JsonProperty("expires_in") int expiresIn,
