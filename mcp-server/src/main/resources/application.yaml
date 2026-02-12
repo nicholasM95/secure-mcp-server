@@ -19,3 +19,8 @@ spring:
 
 issuer-uri: ${ISSUER_URI}
 temperature.api: ${TEMPERATURE_API}
+
+
+token-exchange:
+  client_id: ${TOKEN_EXCHANGE_CLIENT_ID}
+  client_secret: ${TOKEN_EXCHANGE_CLIENT_SECRET}

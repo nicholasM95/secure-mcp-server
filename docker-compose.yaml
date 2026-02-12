@@ -31,6 +31,8 @@ services:
     environment:
       ISSUER_URI: https://04f7-81-240-46-212.ngrok-free.app/keycloak/realms/demo-mcp-servers
       TEMPERATURE_API: https://04f7-81-240-46-212.ngrok-free.app/api
+      TOKEN_EXCHANGE_CLIENT_ID: token-exchange
+      TOKEN_EXCHANGE_CLIENT_SECRET: cWHb5NTyoVoBxl4wOACsX8se1jf8bNtD
     ports:
       - "9000:9000"
     depends_on:
